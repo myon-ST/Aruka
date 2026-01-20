@@ -16,6 +16,7 @@ interface ScheduleItem {
   endTime: string; // HH:mm
   project?: string;
   color: string;
+  status?: 'will_do' | 'doing' | 'done'; // タスクのステータス
   width?: string; // 重複処理用
   left?: string; // 重複処理用
 }
