@@ -4,11 +4,11 @@ import { prisma } from '@/lib/prisma';
 // タスク更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
 
     const updatedTask = await prisma.task.update({
       where: { id },
@@ -44,10 +44,10 @@ export async function PUT(
 // タスク削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     await prisma.task.delete({
       where: { id },

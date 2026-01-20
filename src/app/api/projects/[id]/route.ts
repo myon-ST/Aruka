@@ -4,11 +4,11 @@ import { prisma } from '@/lib/prisma';
 // プロジェクト更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
 
     // 既存のプロジェクトを取得
     const existingProject = await prisma.project.findUnique({
@@ -79,10 +79,10 @@ export async function PUT(
 // プロジェクト削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     await prisma.project.delete({
       where: { id },
