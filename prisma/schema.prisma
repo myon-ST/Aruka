@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// プロジェクトモデル
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // 'work' | 'book' | 'lecture'
+  startDate   DateTime
+  endDate     DateTime
+  description String?
+  progress    Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 作業プロジェクト用
+  workTasks   WorkTask[]
+
+  // 参考書プロジェクト用
+  subject     String?  // 'math' | 'english' | 'chemistry' | 'physics'
+  totalPages  Int?     @default(0)
+  currentPage Int?     @default(0)
+  bookFields  BookField[]
+
+  // 講義プロジェクト用
+  totalSessions     Int? @default(0)
+  completedSessions Int? @default(0)
+
+  // リレーション
+  tasks Task[]
+
+  @@map("projects")
+}
+
+// 作業プロジェクトのタスク
+model WorkTask {
+  id        String  @id @default(cuid())
+  name      String
+  completed Boolean @default(false)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("work_tasks")
+}
+
+// 参考書の分野
+model BookField {
+  id        String  @id @default(cuid())
+  name      String
+  completed Boolean @default(false)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("book_fields")
+}
+
+// メインのタスクカード（HomeとManagementで共有）
+model Task {
+  id          String   @id @default(cuid())
+  type        String   // 'task' | 'schedule' | 'lecture'
+  title       String
+  description String?
+  date        DateTime
+  startTime   String   // HH:mm format
+  endTime     String   // HH:mm format
+  color       String   @default("bg-blue-500")
+  
+  // 管理ページで入力される要素
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  // Homeページで運用される要素
+  status      String   @default("will-do") // 'will-do' | 'doing' | 'done'
+  
+  // 講義用
+  lecturePeriod Int?   // 1-5限
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+// カレンダーの予定
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  color     String   @default("bg-blue-500")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("calendar_events")
+}
